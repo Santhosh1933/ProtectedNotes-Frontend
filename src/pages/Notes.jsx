@@ -43,7 +43,7 @@ export const Notes = () => {
                 Cancel
               </Button>
               <Button variant="ghost" onClick={()=>{
-                Navigate("/new/s")
+                Navigate("/edit/s")
               }}>Create Note</Button>
             </ModalFooter>
           </ModalContent>

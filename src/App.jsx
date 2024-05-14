@@ -10,7 +10,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="new/:name" element={<NewNotes />} />
+          <Route path="edit/:name" element={<NewNotes />} />
           <Route path="/:name" element={<Notes />} />
         </Routes>
       </BrowserRouter>
