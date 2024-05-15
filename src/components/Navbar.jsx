@@ -1,4 +1,4 @@
-import { Button, useDisclosure } from "@chakra-ui/react";
+import { Button, Spinner, useDisclosure } from "@chakra-ui/react";
 import React, { useRef } from "react";
 import {
   Drawer,
@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { IoMenu } from "react-icons/io5";
 
-export const Navbar = ({SaveNotes}) => {
+export const Navbar = ({ SaveNotes, saveLoading }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef();
   return (
@@ -40,7 +40,9 @@ export const Navbar = ({SaveNotes}) => {
             </DrawerHeader>
 
             <DrawerBody className="flex flex-col gap-4">
-              <Button colorScheme="green" onClick={()=>SaveNotes()}>Save</Button>
+              <Button colorScheme="green" onClick={() => SaveNotes()}>
+                Save
+              </Button>
               <Button colorScheme="orange" variant="outline">
                 Change Password
               </Button>
@@ -49,7 +51,16 @@ export const Navbar = ({SaveNotes}) => {
           </DrawerContent>
         </Drawer>
         <div className="sm:flex gap-2 hidden">
-          <Button colorScheme="green" onClick={()=>SaveNotes()}>Save</Button>
+          {saveLoading ? (
+            <Button gap={2} colorScheme="green" >
+              Save <Spinner size="sm" />
+            </Button>
+          ) : (
+            <Button colorScheme="green" onClick={() => SaveNotes()}>
+              Save
+            </Button>
+          )}
+          
           <Button colorScheme="orange" variant="outline">
             Change Password
           </Button>

@@ -9,10 +9,5 @@ export const noteState = atom({
       tabName: "Empty Tab",
       content: "santhosh",
     },
-    {
-      id: uuidv4(),
-      tabName: "Second Tab",
-      content: "Second tab Content",
-    },
   ],
 });

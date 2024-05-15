@@ -24,6 +24,7 @@ import {
   TabPanels,
   Tabs,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { BiPlus } from "react-icons/bi";
 import { GoKebabHorizontal } from "react-icons/go";
@@ -39,7 +40,34 @@ const EditNotes = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [activeEdit, setActiveEdit] = useState(null);
   const [editText, setEditText] = useState("");
-  function SaveNotes() {}
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [auth, setAuth] = useRecoilState(authHook);
+  const toast = useToast();
+  async function SaveNotes() {
+    try {
+      setSaveLoading(true);
+      const response = await fetch(`${backendUrl}/notes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          route: location.pathname.split("/")[2],
+          editPassword: auth.password,
+          notes: data,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      const responseData = await response.json();
+    } catch (error) {
+      alert(error);
+    } finally {
+      setSaveLoading(false);
+    }
+  }
 
   const toolbarOptions = [
     ["bold", "italic", "underline", "strike"],
@@ -60,7 +88,7 @@ const EditNotes = () => {
 
   return (
     <div>
-      <Navbar SaveNotes={SaveNotes} />
+      <Navbar SaveNotes={SaveNotes} saveLoading={saveLoading} />
       <div className="container py-8">
         <div>
           <h1 className="text-2xl text-primaryText font-semibold py-4 title tracking-wider">
@@ -186,6 +214,7 @@ export const NewNotes = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useRecoilState(noteState);
   const navigate = useNavigate();
   async function checkRoute() {
     try {
@@ -206,10 +235,34 @@ export const NewNotes = () => {
 
   const location = useLocation();
   useEffect(() => {
-    if (!auth) {
+    if (!auth.isValid) {
       onOpen();
     }
-  }, [auth]);
+  }, [auth.isValid]);
+
+  async function getNotes(password) {
+    try {
+      const res = await fetch(
+        `${backendUrl}/notes?route=${
+          location.pathname.split("/")[2]
+        }&editPassword=${password}`
+      );
+      const data = await res.json();
+      if (res.status === 404) {
+        navigate(`/${location.pathname.split("/")[2]}`);
+        return;
+      }
+      if (res.status === 401) {
+        alert("Unauthorized");
+        return;
+      }
+      if(res.status === 402){
+        return
+      }
+      setData(data.notes);
+      console.log(data.notes)
+    } catch (error) {}
+  }
 
   async function handleOpenEditAccess() {
     try {
@@ -224,7 +277,11 @@ export const NewNotes = () => {
         alert(data.error);
         return;
       }
-      setAuth(true);
+      setAuth({
+        isValid: true,
+        password: password,
+      });
+      getNotes(password);
       onClose();
     } catch (error) {
       alert(error);
@@ -267,7 +324,7 @@ export const NewNotes = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      {auth && <EditNotes />}
+      {auth.isValid && <EditNotes />}
     </>
   );
 };

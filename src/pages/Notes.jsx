@@ -10,6 +10,12 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spinner,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -19,6 +25,10 @@ export const Notes = () => {
   const Navigate = useNavigate();
   const location = useLocation();
   const [viewNotes, setViewNotes] = useState(false);
+  const [viewPassword, setViewPassword] = useState("");
+  const [notes, setNotes] = useState(null);
+  const [notesLoading, setNotedLoading] = useState(false);
+
   async function checkRoute() {
     try {
       const res = await fetch(
@@ -29,7 +39,9 @@ export const Notes = () => {
         onOpen();
         return;
       }
-      setViewNotes(true);
+      authOnOpen();
+      // getNotes(passwords.viewPassword);
+      // setViewNotes(true);
     } catch (error) {}
   }
 
@@ -38,6 +50,11 @@ export const Notes = () => {
   }, []);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: authIsOpen,
+    onOpen: authOnOpen,
+    onClose: authOnClose,
+  } = useDisclosure();
   const [passwords, setPasswords] = useState({
     viewPassword: "",
     editPassword: "",
@@ -72,6 +89,7 @@ export const Notes = () => {
         throw new Error(await response.text());
       }
       const responseData = await response.json();
+
       Navigate(`/edit/${location.pathname.substring(1)}`);
     } catch (error) {
       alert(error);
@@ -80,11 +98,100 @@ export const Notes = () => {
     }
   }
 
+  async function getNotes() {
+    try {
+      setNotedLoading(true);
+      const res = await fetch(
+        `${backendUrl}/notes?route=${location.pathname.substring(
+          1
+        )}&viewPassword=${viewPassword}`
+      );
+      const data = await res.json();
+      if (res.status === 401) {
+        alert("Incorrect Password");
+        return;
+      }
+      if (res.status === 404) {
+        Navigate("/");
+        return;
+      }
+      if (res.status === 402) {
+        return;
+      }
+      setNotes(data.notes);
+      setViewNotes(true);
+      authOnClose();
+    } catch (error) {
+    } finally {
+      setNotedLoading(false);
+    }
+  }
+  console.log(notes);
   return (
     <>
-      {viewNotes && <>
-        
-      </>}
+      {viewNotes && (
+        <div className="container">
+          <h1 className="text-2xl title text-primaryText text-center py-16">
+            Protected Notes Welcomes You Again 🔑
+          </h1>
+          <div className="bg-slate-50 rounded-md p-1">
+            {notes ? (
+              <Tabs variant="enclosed">
+                <TabList>
+                  {notes.map((note) => (
+                    <Tab key={note.id}>{note.tabName}</Tab>
+                  ))}
+                </TabList>
+                <TabPanels>
+                  {notes.map((note) => (
+                    <TabPanel key={note.id} className="h-full">
+                      {/* <div
+                        dangerouslySetInnerHTML={{ __html: note.content }}
+                      ></div>
+                       */}
+                       <iframe srcDoc={note.content} frameborder="0" style={{ width: '100%', height: '60vh' }}></iframe>
+                    </TabPanel>
+                  ))}
+                </TabPanels>
+              </Tabs>
+            ) : (
+              <></>
+            )}
+          </div>
+        </div>
+      )}
+      <Modal
+        closeOnOverlayClick={false}
+        isOpen={authIsOpen}
+        onClose={authOnClose}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Welcomes you to Protected Notes 🔑</ModalHeader>
+          <ModalBody>
+            <div>
+              <p className="text-[#ea5252] pb-4">Password for View Access</p>
+              <Input
+                type="password"
+                name="viewPassword"
+                value={viewPassword}
+                onChange={(e) => setViewPassword(e.target.value)}
+              />
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            {notesLoading ? (
+              <Button colorScheme="blue" mr={3}>
+                loading <Spinner />
+              </Button>
+            ) : (
+              <Button colorScheme="blue" mr={3} onClick={getNotes}>
+                View
+              </Button>
+            )}
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
