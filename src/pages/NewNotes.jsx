@@ -36,7 +36,9 @@ import { MdEdit } from "react-icons/md";
 
 const EditNotes = () => {
   const [data, SetData] = useRecoilState(noteState);
-  const [activeTab, setActiveTab] = useState(data[0].id);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [activeEdit, setActiveEdit] = useState(null);
+  const [editText, setEditText] = useState("");
   function SaveNotes() {}
 
   const toolbarOptions = [
@@ -56,10 +58,6 @@ const EditNotes = () => {
     toolbar: toolbarOptions,
   };
 
-  useEffect(() => {
-    setActiveTab(data[0].id);
-  }, [data.length]);
-
   return (
     <div>
       <Navbar SaveNotes={SaveNotes} />
@@ -73,7 +71,12 @@ const EditNotes = () => {
               {data.map((tab) => (
                 <Tab key={tab.id} className="flex  items-center gap-2">
                   <p>{tab.tabName}</p>
-                  <p>
+                  <p
+                    onClick={() => {
+                      setActiveEdit({ id: tab.id, name: tab.tabName });
+                      onOpen();
+                    }}
+                  >
                     <MdEdit />
                   </p>
                 </Tab>
@@ -115,6 +118,65 @@ const EditNotes = () => {
           </Tabs>
         </div>
       </div>
+      <Modal
+        closeOnOverlayClick={false}
+        isCentered
+        isOpen={isOpen}
+        onClose={onClose}
+      >
+        <OverlayOne />
+        <ModalContent>
+          <ModalHeader>Edit And Delete tabs</ModalHeader>
+          <ModalBody>
+            <p className="text-primaryText pb-4">Edit Your Tab Name</p>
+            <Input
+              onChange={(e) => setEditText(e.target.value)}
+              type="text"
+              defaultValue={activeEdit?.name}
+            />
+          </ModalBody>
+          <ModalFooter gap={4}>
+            <Button
+              onClick={() => {
+                let tempArr = [...data];
+                const tabIndex = tempArr.findIndex(
+                  (item) => item.id === activeEdit.id
+                );
+                if (tabIndex !== -1) {
+                  tempArr[tabIndex] = {
+                    ...tempArr[tabIndex],
+                    tabName: editText,
+                  };
+                  SetData(tempArr);
+                  setActiveEdit(null);
+                  onClose();
+                }
+              }}
+              colorScheme="green"
+            >
+              Edit Text
+            </Button>
+
+            <Button
+              onClick={() => {
+                let tempArr = [...data];
+                const tabIndex = tempArr.findIndex(
+                  (item) => item.id === activeEdit.id
+                );
+                if (tabIndex !== -1) {
+                  tempArr.splice(tabIndex, 1);
+                  SetData(tempArr);
+                  setActiveEdit(null);
+                  onClose();
+                }
+              }}
+              colorScheme="red"
+            >
+              Delete tab
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
