@@ -7,7 +7,7 @@ export const noteState = atom({
     {
       id: uuidv4(),
       tabName: "Empty Tab",
-      content: "santhosh",
+      content: `loading...`,
     },
   ],
 });

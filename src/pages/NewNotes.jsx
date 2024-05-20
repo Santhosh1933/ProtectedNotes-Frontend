@@ -3,6 +3,7 @@ import { Navbar } from "../components/Navbar";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { v4 as uuidv4 } from "uuid";
+import { Spinner } from "@chakra-ui/react";
 
 import {
   Button,
@@ -229,7 +230,7 @@ export const NewNotes = () => {
     {
       id: uuidv4(),
       tabName: "Empty Tab",
-      content: "santhosh",
+      content: `Loading...`,
     },
   ]);
   const navigate = useNavigate();
