@@ -35,13 +35,13 @@ import { backendUrl } from "../../constant";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdEdit } from "react-icons/md";
 
-const EditNotes = () => {
-  const [data, SetData] = useRecoilState(noteState);
+const EditNotes = ({ data, setData }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [activeEdit, setActiveEdit] = useState(null);
   const [editText, setEditText] = useState("");
   const [saveLoading, setSaveLoading] = useState(false);
   const [auth, setAuth] = useRecoilState(authHook);
+  const [loading, setLoading] = useState(false);
   const toast = useToast();
   async function SaveNotes() {
     try {
@@ -86,6 +86,15 @@ const EditNotes = () => {
     toolbar: toolbarOptions,
   };
 
+  const handleContentLoadStart = () => {
+    setLoading(true);
+  };
+
+  // Function to handle when content finishes loading
+  const handleContentLoadEnd = () => {
+    setLoading(false);
+  };
+
   return (
     <div>
       <Navbar SaveNotes={SaveNotes} saveLoading={saveLoading} />
@@ -117,7 +126,7 @@ const EditNotes = () => {
                     tabName: "Empty Tab",
                     content: "",
                   });
-                  SetData([...tempArr]);
+                  setData([...tempArr]);
                 }}
                 className="bg-slate-100 flex justify-center items-center px-4 rounded-t-md cursor-pointer"
               >
@@ -137,8 +146,10 @@ const EditNotes = () => {
                         (item) => item.id === tab.id
                       );
                       newData[tabIndex] = { ...newData[tabIndex], content };
-                      SetData(newData);
+                      setData(newData);
                     }}
+                    onLoadStart={handleContentLoadStart}
+                    onLoad={() => handleContentLoadEnd()}
                   />
                 </TabPanel>
               ))}
@@ -175,7 +186,7 @@ const EditNotes = () => {
                     ...tempArr[tabIndex],
                     tabName: editText,
                   };
-                  SetData(tempArr);
+                  setData(tempArr);
                   setActiveEdit(null);
                   onClose();
                 }
@@ -193,7 +204,7 @@ const EditNotes = () => {
                 );
                 if (tabIndex !== -1) {
                   tempArr.splice(tabIndex, 1);
-                  SetData(tempArr);
+                  setData(tempArr);
                   setActiveEdit(null);
                   onClose();
                 }
@@ -214,7 +225,13 @@ export const NewNotes = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useRecoilState(noteState);
+  const [data, setData] = useState([
+    {
+      id: uuidv4(),
+      tabName: "Empty Tab",
+      content: "santhosh",
+    },
+  ]);
   const navigate = useNavigate();
   async function checkRoute() {
     try {
@@ -256,11 +273,11 @@ export const NewNotes = () => {
         alert("Unauthorized");
         return;
       }
-      if(res.status === 402){
-        return
+      if (res.status === 402) {
+        return;
       }
       setData(data.notes);
-      console.log(data.notes)
+      console.log(data.notes);
     } catch (error) {}
   }
 
@@ -324,7 +341,7 @@ export const NewNotes = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      {auth.isValid && <EditNotes />}
+      {auth.isValid && <EditNotes data={data} setData={setData} />}
     </>
   );
 };
