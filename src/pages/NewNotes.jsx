@@ -41,9 +41,34 @@ const EditNotes = ({ data, setData }) => {
   const [activeEdit, setActiveEdit] = useState(null);
   const [editText, setEditText] = useState("");
   const [saveLoading, setSaveLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [auth, setAuth] = useRecoilState(authHook);
-  const [loading, setLoading] = useState(false);
   const toast = useToast();
+  console.clear();
+
+  async function ChangePassword() {
+    console.log("Change Password");
+  }
+  async function DeleteRoute() {
+    let deleteResult = confirm("Are you sure you want to delete");
+    if (deleteResult) {
+      try {
+        const res = await fetch(
+          `${backendUrl}/delete-route?route=${location.pathname.split("/")[2]}`
+        );
+        const data = await res.json();
+        if (res.status !== 200) {
+          alert(data.message);
+          return;
+        }
+      } catch (error) {
+        alert(error);
+      } finally {
+        setDeleteLoading(false);
+      }
+    }
+  }
+
   async function SaveNotes() {
     try {
       setSaveLoading(true);
@@ -87,18 +112,22 @@ const EditNotes = ({ data, setData }) => {
     toolbar: toolbarOptions,
   };
 
-  const handleContentLoadStart = () => {
-    setLoading(true);
-  };
-
-  // Function to handle when content finishes loading
-  const handleContentLoadEnd = () => {
-    setLoading(false);
+  const handleChange = (content, tab) => {
+    const newData = [...data];
+    const tabIndex = newData.findIndex((item) => item.id === tab.id);
+    newData[tabIndex] = { ...newData[tabIndex], content };
+    setData(newData);
   };
 
   return (
     <div>
-      <Navbar SaveNotes={SaveNotes} saveLoading={saveLoading} />
+      <Navbar
+        SaveNotes={SaveNotes}
+        saveLoading={saveLoading}
+        ChangePassword={ChangePassword}
+        DeleteRoute={DeleteRoute}
+        deleteLoading={deleteLoading}
+      />
       <div className="container py-8">
         <div>
           <h1 className="text-2xl text-primaryText font-semibold py-4 title tracking-wider">
@@ -141,16 +170,7 @@ const EditNotes = ({ data, setData }) => {
                     modules={modules}
                     theme="snow"
                     value={tab.content}
-                    onChange={(content) => {
-                      const newData = [...data];
-                      const tabIndex = newData.findIndex(
-                        (item) => item.id === tab.id
-                      );
-                      newData[tabIndex] = { ...newData[tabIndex], content };
-                      setData(newData);
-                    }}
-                    onLoadStart={handleContentLoadStart}
-                    onLoad={() => handleContentLoadEnd()}
+                    onChange={(content) => handleChange(content, tab)}
                   />
                 </TabPanel>
               ))}
@@ -185,7 +205,8 @@ const EditNotes = ({ data, setData }) => {
                 if (tabIndex !== -1) {
                   tempArr[tabIndex] = {
                     ...tempArr[tabIndex],
-                    tabName: editText,
+                    tabName:
+                      editText.trim() === "" ? "Empty Tab" : editText.trim(),
                   };
                   setData(tempArr);
                   setActiveEdit(null);
@@ -278,7 +299,6 @@ export const NewNotes = () => {
         return;
       }
       setData(data.notes);
-      console.log(data.notes);
     } catch (error) {}
   }
 

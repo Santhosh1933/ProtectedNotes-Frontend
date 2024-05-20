@@ -134,6 +134,14 @@ export const Notes = () => {
           <h1 className="text-2xl title text-primaryText text-center py-16">
             Protected Notes Welcomes You Again 🔑
           </h1>
+          <div className="mx-auto w-fit flex gap-4 pb-8">
+            <p className="cursor-pointer hover:underline underline-offset-2" onClick={()=>{
+              Navigate("/");
+            }}>Home</p>
+            <p className="cursor-pointer hover:underline underline-offset-2" onClick={()=>{
+              Navigate(`/edit/${location.pathname.substring(1)}`);
+            }}>Edit</p>
+          </div>
           <div className="bg-slate-50 rounded-md p-1">
             {notes ? (
               <Tabs variant="enclosed">

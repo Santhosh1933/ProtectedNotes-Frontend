@@ -10,14 +10,26 @@ import {
   DrawerCloseButton,
 } from "@chakra-ui/react";
 import { IoMenu } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
-export const Navbar = ({ SaveNotes, saveLoading }) => {
+export const Navbar = ({
+  SaveNotes,
+  saveLoading,
+  DeleteRoute,
+  deleteLoading,
+}) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef();
+  const navigate = useNavigate();
   return (
     <div className="bg-[#FEFDED] w-full h-[10vh] shadow-sm border-b-2 border-yellow-200">
       <div className="container flex  items-center h-full justify-between">
-        <h1 className="comic-neue font-bold text-2xl text-[#ea5252] ">
+        <h1
+          onClick={() => {
+            navigate("/");
+          }}
+          className="comic-neue cursor-pointer font-bold text-2xl text-[#ea5252] "
+        >
           PROTECTED NOTES
         </h1>
         <div ref={btnRef} onClick={onOpen} className="sm:hidden visible">
@@ -52,7 +64,7 @@ export const Navbar = ({ SaveNotes, saveLoading }) => {
         </Drawer>
         <div className="sm:flex gap-2 hidden">
           {saveLoading ? (
-            <Button gap={2} colorScheme="green" >
+            <Button gap={2} colorScheme="green">
               Save <Spinner size="sm" />
             </Button>
           ) : (
@@ -60,11 +72,20 @@ export const Navbar = ({ SaveNotes, saveLoading }) => {
               Save
             </Button>
           )}
-          
-          <Button colorScheme="orange" variant="outline">
+          {deleteLoading ? (
+            <Button colorScheme="red" className="flex gap-2">
+              Delete
+              <Spinner size="sm" />
+            </Button>
+          ) : (
+            <Button colorScheme="red" onClick={DeleteRoute}>
+              Delete
+            </Button>
+          )}
+
+          {/* <Button  colorScheme="orange" variant="outline">
             Change Password
-          </Button>
-          <Button colorScheme="red">Delete</Button>
+          </Button> */}
         </div>
       </div>
     </div>

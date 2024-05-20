@@ -1,7 +1,9 @@
 import React from "react";
 import { IoKey } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 export const LandingPage = () => {
+  const navigate = useNavigate();
   return (
     <div className="h-screen bg-[#FEFDED] w-full ">
       <div className="container py-16">
@@ -25,15 +27,28 @@ export const LandingPage = () => {
             <div>
               Go to <span className="font-medium">protectednotes.com/</span>
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const route = e.target.route.value.replace(/\s+/g, "-");
+                navigate(route);
+              }}
+              className="flex gap-2 flex-wrap"
+            >
               <input
                 type="text"
                 className="outline-none border rounded-md p-1"
+                name="route"
+                placeholder="Enter your route"
+                required
               />
-              <button className="bg-[#ea5252] text-white px-4 rounded-md py-1">
+              <button
+                type="submit"
+                className="bg-[#ea5252] text-white px-4 rounded-md py-1"
+              >
                 Go
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
