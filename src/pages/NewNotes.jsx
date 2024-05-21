@@ -33,7 +33,7 @@ import { useRecoilState } from "recoil";
 import { noteState } from "../hooks/NotesHook";
 import { authHook } from "../hooks/AuthHook";
 import { backendUrl } from "../../constant";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { MdEdit } from "react-icons/md";
 
 const EditNotes = ({ data, setData }) => {
@@ -43,30 +43,37 @@ const EditNotes = ({ data, setData }) => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [auth, setAuth] = useRecoilState(authHook);
+  const navigate = useNavigate()
   const toast = useToast();
-  console.clear();
+  // console.clear();
 
   async function ChangePassword() {
     console.log("Change Password");
   }
   async function DeleteRoute() {
-    let deleteResult = confirm("Are you sure you want to delete");
-    if (deleteResult) {
+    let prompt = confirm("Are you sure you want to delete");
+    if (prompt) {
       try {
+        setDeleteLoading(true)
+        const route = location.pathname.split("/")[2];
         const res = await fetch(
-          `${backendUrl}/delete-route?route=${location.pathname.split("/")[2]}`
+          `${backendUrl}/notes?route=${route}&editPassword=${auth.password}`,
+          { method: "DELETE" }
         );
         const data = await res.json();
+
         if (res.status !== 200) {
-          alert(data.message);
           return;
         }
+        navigate("/")
+        return;
       } catch (error) {
-        alert(error);
+        navigate("/")
       } finally {
         setDeleteLoading(false);
       }
     }
+    return;
   }
 
   async function SaveNotes() {

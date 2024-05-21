@@ -126,7 +126,6 @@ export const Notes = () => {
       setNotedLoading(false);
     }
   }
-  console.log(notes);
   return (
     <>
       {viewNotes && (

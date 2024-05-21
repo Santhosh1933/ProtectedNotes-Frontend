@@ -78,7 +78,7 @@ export const Navbar = ({
               <Spinner size="sm" />
             </Button>
           ) : (
-            <Button colorScheme="red" onClick={DeleteRoute}>
+            <Button colorScheme="red" onClick={DeleteRoute} >
               Delete
             </Button>
           )}
