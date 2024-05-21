@@ -43,7 +43,7 @@ const EditNotes = ({ data, setData }) => {
   const [saveLoading, setSaveLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [auth, setAuth] = useRecoilState(authHook);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const toast = useToast();
   // console.clear();
 
@@ -54,7 +54,7 @@ const EditNotes = ({ data, setData }) => {
     let prompt = confirm("Are you sure you want to delete");
     if (prompt) {
       try {
-        setDeleteLoading(true)
+        setDeleteLoading(true);
         const route = location.pathname.split("/")[2];
         const res = await fetch(
           `${backendUrl}/notes?route=${route}&editPassword=${auth.password}`,
@@ -65,10 +65,14 @@ const EditNotes = ({ data, setData }) => {
         if (res.status !== 200) {
           return;
         }
-        navigate("/")
+        setAuth({
+          isValid: false,
+          password: null,
+        });
+        navigate("/");
         return;
       } catch (error) {
-        navigate("/")
+        navigate("/");
       } finally {
         setDeleteLoading(false);
       }
